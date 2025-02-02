@@ -1,0 +1,7 @@
+PyQt6
+qasync
+speechrecognition
+pyttsx3
+pyautogui
+requests
+fuzzywuzzy
