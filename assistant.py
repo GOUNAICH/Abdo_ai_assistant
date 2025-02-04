@@ -11,10 +11,14 @@ from modules.volume_control import VolumeControl
 import subprocess
 from dotenv import load_dotenv
 import os
+from engine.auth import recoganize
 
 load_dotenv()
 
 class AIAssistant:
+
+    flag = recoganize.AuthenticateFace()
+    
     def __init__(self, window):
         self.window = window
         self.weather_api_key = os.getenv("WEATHER_API_KEY")
