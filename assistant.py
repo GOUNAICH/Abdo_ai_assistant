@@ -7,6 +7,7 @@ from modules.phone_display import PhoneDisplayHandler
 from modules.utils import find_application
 from modules.img_generate import generate_img
 from modules.send_email import SendEmail
+from modules.volume_control import VolumeControl
 import subprocess
 from dotenv import load_dotenv
 import os
@@ -25,6 +26,7 @@ class AIAssistant:
         self.weather_handler = WeatherHandler(self.speech_handler, self.weather_api_key)
         self.phone_display_handler = PhoneDisplayHandler(self.speech_handler)
         self.send_email_handler = SendEmail(self.speech_handler)
+        self.volume_control = VolumeControl()
 
     async def execute_command_async(self, command):
         if not command:
@@ -103,6 +105,22 @@ class AIAssistant:
                     
             elif "send email" in command:
                 await self.send_email_handler.handle_send_email()
+            
+            elif "volume up" or "increase volume" in command:
+                self.volume_control.increase_volume()
+                self.speech_handler.speak("Increasing volume.")
+
+            elif "volume down" or "decrease volume" in command:
+                self.volume_control.decrease_volume()
+                self.speech_handler.speak("Decreasing volume.")
+
+            elif "mute" in command:
+                self.volume_control.mute_volume()
+                self.speech_handler.speak("Volume muted.")
+
+            elif "unmute" in command:
+                self.volume_control.unmute_volume()
+                self.speech_handler.speak("Volume unmuted.")
 
             # Default case: Pass any other command to the chatBot function
             else:
