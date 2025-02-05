@@ -11,7 +11,7 @@ from modules.volume_control import VolumeControl
 import subprocess
 from dotenv import load_dotenv
 import os
-from engine.auth import recoganize
+from auth import recoganize
 
 load_dotenv()
 
