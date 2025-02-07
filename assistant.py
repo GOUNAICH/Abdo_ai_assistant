@@ -12,12 +12,14 @@ import subprocess
 from dotenv import load_dotenv
 import os
 from auth import recoganize
+from modules.img_to_text import ImageCaptioning
+from modules.scan import PhoneScreenCapture
 
 load_dotenv()
 
 class AIAssistant:
 
-    flag = recoganize.AuthenticateFace()
+    #flag = recoganize.AuthenticateFace()
     
     def __init__(self, window):
         self.window = window
@@ -31,6 +33,8 @@ class AIAssistant:
         self.phone_display_handler = PhoneDisplayHandler(self.speech_handler)
         self.send_email_handler = SendEmail(self.speech_handler)
         self.volume_control = VolumeControl()
+        self.image_captioning = ImageCaptioning(self.speech_handler)
+        self.phone_screen_capture = PhoneScreenCapture(self.speech_handler)
 
     async def execute_command_async(self, command):
         if not command:
@@ -110,11 +114,11 @@ class AIAssistant:
             elif "send email" in command:
                 await self.send_email_handler.handle_send_email()
             
-            elif "volume up" or "increase volume" in command:
+            elif "volume up" in command or "increase volume" in command:
                 self.volume_control.increase_volume()
                 self.speech_handler.speak("Increasing volume.")
 
-            elif "volume down" or "decrease volume" in command:
+            elif "volume down" in command or "decrease volume" in command:
                 self.volume_control.decrease_volume()
                 self.speech_handler.speak("Decreasing volume.")
 
@@ -125,6 +129,12 @@ class AIAssistant:
             elif "unmute" in command:
                 self.volume_control.unmute_volume()
                 self.speech_handler.speak("Volume unmuted.")
+
+            elif "describe image" in command:
+                self.image_captioning.describe_image()
+
+            elif "scan document" in command:
+                self.phone_screen_capture.capture_screen()
 
             # Default case: Pass any other command to the chatBot function
             else:

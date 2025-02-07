@@ -13,7 +13,7 @@ class PhoneDisplayHandler:
 
         try:
             self.scrcpy_process = subprocess.Popen(
-                r"C:\Users\dell\Desktop\Ai_Assistant_Abdo\Display_Phone\scrcpy.exe",
+                r"C:\Users\dell\Desktop\Abdo_ai_assistant\Display_Phone\scrcpy.exe",
                 shell=True)
             self.speech_handler.speak("Displaying your phone screen.")
             self.is_phone_displayed = True

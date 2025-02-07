@@ -8,7 +8,7 @@ fuzzywuzzy
 
 ------------------------------- How Authentication Works ---------------------------------------------------  
 1. cd auth
-1. Run sample.py by this command "py sample.py" and enter the user id to capture 100 images of your face. The images will be automatically saved in the samples folder.  
-2. Run trainer.py by this command "trainer.py" to train the face recognition model using the captured images.  
-3. Finally, run main.py to start the authentication process.  
+2. Run sample.py by this command "py sample.py" and enter the user id to capture 100 images of your face. The images will be automatically saved in the samples folder.  
+3. Run trainer.py by this command "trainer.py" to train the face recognition model using the captured images.  
+4. Finally, run main.py to start the authentication process.  
 ------------------------------------------------------------------------------------------------------------  
