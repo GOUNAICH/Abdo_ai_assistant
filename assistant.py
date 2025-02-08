@@ -14,6 +14,7 @@ import os
 from auth import recoganize
 from modules.img_to_text import ImageCaptioning
 from modules.scan import PhoneScreenCapture
+from modules.pdf_reader import InteractivePDFCompanion
 
 load_dotenv()
 
@@ -35,6 +36,9 @@ class AIAssistant:
         self.volume_control = VolumeControl()
         self.image_captioning = ImageCaptioning(self.speech_handler)
         self.phone_screen_capture = PhoneScreenCapture(self.speech_handler)
+
+        # Initialize PDF Reader
+        self.pdf_reader = None
 
     async def execute_command_async(self, command):
         if not command:
@@ -135,6 +139,11 @@ class AIAssistant:
 
             elif "scan document" in command:
                 self.phone_screen_capture.capture_screen()
+
+            elif "open pdf" in command or "read pdf" in command:
+                if not self.pdf_reader:
+                    self.pdf_reader = InteractivePDFCompanion()
+                await self.pdf_reader.start_reading()
 
             # Default case: Pass any other command to the chatBot function
             else:

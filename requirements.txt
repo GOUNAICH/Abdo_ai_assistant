@@ -5,6 +5,9 @@ pyttsx3
 pyautogui
 requests
 fuzzywuzzy
+OpenCV
+PyPDF2
+
 
 ------------------------------- How Authentication Works ---------------------------------------------------  
 1. cd auth
