@@ -15,6 +15,7 @@ from auth import recoganize
 from modules.img_to_text import ImageCaptioning
 from modules.scan import PhoneScreenCapture
 from modules.pdf_reader import InteractivePDFCompanion
+from modules.about import Aboutcristiano
 
 load_dotenv()
 
@@ -36,6 +37,7 @@ class AIAssistant:
         self.volume_control = VolumeControl()
         self.image_captioning = ImageCaptioning(self.speech_handler)
         self.phone_screen_capture = PhoneScreenCapture(self.speech_handler)
+        self.about_cristiano = Aboutcristiano(self.speech_handler)
 
         # Initialize PDF Reader
         self.pdf_reader = None
@@ -47,7 +49,10 @@ class AIAssistant:
         print(f"Executing: {command}")
 
         try:
-            if 'open notepad' in command:
+            if "cristiano" in command or "how are you" in command or "who built you" in command or "who created you" in command or "who made you" in command or "what can you do" in command or "your features" in command or "your capabilities" in command or "help me" in command or "thank you" in command or "thanks" in command:
+                self.about_cristiano.respond(command)
+
+            elif 'open notepad' in command:
                 await self.notepad_handler.start_notepad_dictation()
 
             elif self.notepad_handler.is_dictating and any(word in command for word in ['save', 'save file', 'save it']):
