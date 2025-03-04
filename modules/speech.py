@@ -11,10 +11,14 @@ class SpeechHandler:
         self.recognizer = sr.Recognizer()
 
     def speak(self, text):
-        print(f"Assistant: {text}")
+        print(f"Assistant: {text}", flush=True)
         self.engine.say(text)
         self.engine.runAndWait()
-
+        
+    def stop_speaking(self):
+            """Stop speaking immediately."""
+            self.engine.stop()
+            
     async def listen_command(self):
         with sr.Microphone() as source:
             print("Listening...")

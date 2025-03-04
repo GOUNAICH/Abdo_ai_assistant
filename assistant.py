@@ -9,6 +9,7 @@ from modules.img_generate import generate_img
 from modules.send_email import SendEmail
 from modules.volume_control import VolumeControl
 import subprocess
+import psutil
 from dotenv import load_dotenv
 import os
 from auth import recoganize
@@ -26,7 +27,7 @@ class AIAssistant:
     def __init__(self, window):
         self.window = window
         self.weather_api_key = os.getenv("WEATHER_API_KEY")
-
+        self.cancel_flag = False
         # Initialize handlers
         self.speech_handler = SpeechHandler()
         self.basic_commands = BasicCommands(self.speech_handler)
@@ -49,7 +50,40 @@ class AIAssistant:
         print(f"Executing: {command}")
 
         try:
-            if "cristiano" in command or "how are you" in command or "who built you" in command or "who created you" in command or "who made you" in command or "what can you do" in command or "your features" in command or "your capabilities" in command or "help me" in command or "thank you" in command or "thanks" in command:
+            
+            if "cancel" in command or "stop" in command :
+                self.cancel_flag=True
+                self.speech_handler.stop_speaking()  # Stop ongoing speech
+                self.speech_handler.speak("Cancelling teh current process...")
+                
+                if self.notepad_handler.is_dictating:
+                    self.notepad_handler.is_dictating=False
+                    subprocess.run(["taskkill", "/F", "/IM", "notepad.exe"], shell=True)
+                    self.speech_handler.speak("Notepad Closed.")
+                if self.pdf_reader and self.pdf_reader.is_reading:
+                        self.pdf_reader.is_reading = False
+                        subprocess.run(["taskkill", "/F", "/IM", "AcroRd32.exe"], shell=True)
+                        self.speech_handler.speak("PDF reading cancelled.")
+
+                    # Stop email sending if it was ongoing
+                if hasattr(self.send_email_handler, "is_sending") and self.send_email_handler.is_sending:
+                        self.send_email_handler.is_sending = False
+                        self.speech_handler.speak("Email process cancelled.")
+                
+                return 
+            elif "close" in command:
+                    app_name = command.replace("close", "").strip().lower()
+                    closed = self.close_application(app_name)
+                    if closed:
+                        self.speech_handler.speak(f"{app_name} closed successfully.")
+                    else:
+                        self.speech_handler.speak(f"Sorry, I couldn't find an application named {app_name} running.")
+
+                    return  # Exit after closing app
+                
+            self.cancel_flag=False
+              
+            if "how are you" in command or "who built you" in command or "who created you" in command or "who made you" in command or "what can you do" in command or "your features" in command or "your capabilities" in command or "help me" in command or "thank you" in command or "thanks" in command:
                 self.about_cristiano.respond(command)
 
             elif 'open notepad' in command:
@@ -59,6 +93,12 @@ class AIAssistant:
                 await self.notepad_handler.save_notepad_file()
 
             elif self.notepad_handler.is_dictating:
+                
+                while self.notepad_handler.is_dictating:
+                    if self.cancel_flag:
+                        self.speech_handler.speak("Dictation cancelled")
+                        self.notepad_handler.is_dictating=False
+                        return 
                 # Handle special Notepad actions
                 if 'add space' in command:
                     await self.notepad_handler.add_space()
@@ -145,9 +185,15 @@ class AIAssistant:
             elif "scan document" in command:
                 self.phone_screen_capture.capture_screen()
 
-            elif "open pdf" in command or "read pdf" in command:
+            elif "read pdf" in command:
                 if not self.pdf_reader:
                     self.pdf_reader = InteractivePDFCompanion()
+                    
+                if self.cancel_flag: 
+                    self.speech_handler.speak("PDF reading is cancelled")
+                    self.pdf_reader.is_reading= False 
+                    return 
+                
                 await self.pdf_reader.start_reading()
 
             # Default case: Pass any other command to the chatBot function
@@ -157,3 +203,15 @@ class AIAssistant:
         except Exception as e:
             print(f"Command execution error: {e}")
             self.speech_handler.speak("Sorry, there was an error executing that command.")
+    
+    def close_application(self, app_name):
+            """Find and close a running application."""
+            for process in psutil.process_iter(attrs=['pid', 'name']):
+                if app_name.lower() in process.info['name'].lower():
+                    try:
+                        process.terminate()
+                        return True
+                    except Exception as e:
+                        print(f"Error closing {app_name}: {e}")
+                        return False
+            return False

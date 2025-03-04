@@ -1,34 +1,35 @@
-import sys
 import asyncio
-from PyQt6.QtWidgets import QApplication
-import qasync
-from GraphiqueInterface.MainWindow import MainWindow
+import sys
 from assistant import AIAssistant
 
 async def main():
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
+    if len(sys.argv) > 1 and sys.argv[1] == 'electron':
+        print("Running with Electron integration", flush=True)
+        input_signal = sys.stdin.readline().strip()
+        print(f"Received input signal: {input_signal}", flush=True)
 
-    loop = qasync.QEventLoop(app)
+        if input_signal == 'window_ready':
+            print("Initializing AI Assistant...", flush=True)
+            assistant = AIAssistant(window='main_window_placeholder')
 
-                
-    asyncio.set_event_loop(loop)
+            # Initial greeting
+            greeting = "Hello, How can I assist you today?"
+            assistant.speech_handler.speak(greeting)  # This will print the greeting to stdout
 
-    assistant = AIAssistant(window)
-    assistant.speech_handler.speak("Hello, How can I assist you today?")
+            try:
+                while True:
+                    # Listen for a command
+                    command = await assistant.speech_handler.listen_command()
+                    if command:
+                        await assistant.execute_command_async(command)
+                        
+                        
 
-    try:
-        while True:
-            command = await assistant.speech_handler.listen_command()
-            if command:
-                await assistant.execute_command_async(command)
-    except asyncio.CancelledError:
-        pass
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        await loop.create_task(app.exec())
+            except Exception as e:
+                print(f"An error occurred: {e}", flush=True)
+
+    else:
+        print("Running standalone without Electron. Assistant will not have a window reference.", flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
