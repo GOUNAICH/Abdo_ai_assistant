@@ -47,7 +47,7 @@ class AIAssistant:
         if not command:
             return
 
-        print(f"Executing: {command}")
+        print(f"User: {command}")
 
         try:
             

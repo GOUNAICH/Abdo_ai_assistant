@@ -19,7 +19,7 @@ app.whenReady().then(() => {
     mainWindow.loadURL("http://localhost:5173");
 
     // Start Python process with 'electron' argument
-    pythonProcess = spawn("python", ["C:\\Users\\dell\\Desktop\\baa3assistant\\main.py", "electron"], {
+    pythonProcess = spawn("python", ["C:\\Users\\dell\\Desktop\\Abdo_ai_assistant\\main.py", "electron"], {
         stdio: ["pipe", "pipe", "pipe"]
     });
 

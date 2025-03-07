@@ -5,29 +5,32 @@ export default function App() {
   const [response, setResponse] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [lastUserMessage, setLastUserMessage] = useState(""); // Stocke le dernier message de l'utilisateur
 
   useEffect(() => {
     if (window.electron) {
       console.log("Electron interface detected");
 
-      // Send ready signal to main process only once
       if (!isInitialized) {
-        window.electron.sendMessage('electron-ready');
+        window.electron.sendMessage("electron-ready");
         setIsInitialized(true);
       }
 
-      // Set up listener for Python responses
-      window.electron.onMessage('python-response', (data) => {
-        console.log('Received from Python:', data);
+      window.electron.onMessage("python-response", (data) => {
+        console.log("Received from Python:", data);
 
-        // Handle "Listening..." signal
         if (data.includes("Listening...")) {
           setIsListening(true);
           setResponse("Listening...");
         } else if (data && data.trim()) {
           setIsListening(false);
-          setResponse(data.trim());
+          setResponse(`${data.trim()}`);
         }
+      });
+
+      // Capture user's messages (assume there's an event)
+      window.electron.onMessage("user-message", (message) => {
+        setLastUserMessage(`User: ${message}`);
       });
     } else {
       console.log("Running in browser mode - Electron interface not detected");
@@ -35,23 +38,18 @@ export default function App() {
   }, [isInitialized]);
 
   return (
-    <div 
+    <div
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
-        width: '100vw',
-        height: '100vh',
-        //background
-        //backgroundImage: "url('/background.jpg')",
-        //backgroundSize: "cover",
-        //backgroundPosition: "center",
-        //background
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden'
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
       }}
     >
       <EyeWidget />
@@ -72,10 +70,12 @@ export default function App() {
           maxWidth: "80%",
           wordWrap: "break-word",
           opacity: response ? 1 : 0,
-          transition: "opacity 0.3s ease"
+          transition: "opacity 0.3s ease",
+          whiteSpace: "pre-line", // Permet d'afficher les sauts de ligne
         }}
       >
-        {isListening ? "Listening..." : response}
+        {lastUserMessage ? `${lastUserMessage}\n` : ""}
+        {response}
       </div>
     </div>
   );
